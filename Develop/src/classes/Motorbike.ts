@@ -1,26 +1,57 @@
-// Importing Vehicle and Wheel classes
+// Import necessary classes
 import Vehicle from './Vehicle.js';
-import Wheel from './Wheel.js';
 
-// TODO: The Motorbike class should extend the Vehicle class
-class Motorbike {
-  // TODO: Declare properties of the Motorbike class
-  // TODO: The properties should include vin, color, make, model, year, weight, top speed, and wheels
-  // TODO: The types should be as follows: vin (string), color (string), make (string), model (string), year (number), weight (number), topSpeed (number), wheels (Wheel[])
+// Motorbike class extends Vehicle
+class Motorbike extends Vehicle {
+  // Additional properties specific to motorbikes
+  engineSize: number;
+  hasSidecar: boolean;
+  isSportBike: boolean;
 
-  // TODO: Create a constructor that accepts the properties of the Motorbike class
-    // TODO: The constructor should call the constructor of the parent class, Vehicle
-    // TODO: The constructor should initialize the properties of the Motorbike class
-    // TODO: The constructor should check if the wheels array has 2 elements and create 2 new default Wheel objects if it does not
+  // Constructor for Motorbike class
+  constructor(
+    vin: string,
+    color: string,
+    make: string,
+    model: string,
+    year: number,
+    weight: number,
+    topSpeed: number,
+    engineSize: number,
+    hasSidecar: boolean,
+    isSportBike: boolean
+  ) {
+    super(vin, color, make, model, year, weight, topSpeed);
+    this.engineSize = engineSize;
+    this.hasSidecar = hasSidecar;
+    this.isSportBike = isSportBike;
+  }
 
-  // TODO: Implement the wheelie method
-    // TODO: The method should log the message "Motorbike [make] [model] is doing a wheelie!"
+  // Override printDetails to include motorbike-specific properties
+  override printDetails(): void {
+    super.printDetails();
+    console.log(`Engine Size: ${this.engineSize}cc`);
+    console.log(`Has Sidecar: ${this.hasSidecar ? 'Yes' : 'No'}`);
+    console.log(`Sport Bike: ${this.isSportBike ? 'Yes' : 'No'}`);
+  }
 
-  // TODO: Override the printDetails method from the Vehicle class
-  // TODO: The method should call the printDetails method of the parent class
-  // TODO: The method should log the details of the Motorbike
-  // TODO: The details should include the VIN, make, model, year, weight, top speed, color, and wheels
+  // Unique motorbike method for wheelie
+  doWheelie(): void {
+    if (this.isSportBike) {
+      console.log('Performing a wheelie!');
+    } else {
+      console.log('This bike is not suitable for wheelies.');
+    }
+  }
+
+  // Unique motorbike method for sidecar operations
+  toggleSidecar(): void {
+    if (this.hasSidecar) {
+      console.log('Sidecar toggled.');
+    } else {
+      console.log('This bike does not have a sidecar.');
+    }
+  }
 }
 
-// Export the Motorbike class as the default export
 export default Motorbike;
