@@ -68,62 +68,73 @@ class Cli {
         await this.createMotorbike();
         break;
     }
+
+    // After creating any vehicle, ask if user wants to return to main menu
+    const { returnToMain } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "returnToMain",
+        message: "Would you like to return to the main menu?",
+        default: true,
+      },
+    ]);
+
+    if (returnToMain) {
+      this.startCli();
+    } else {
+      this.performActions();
+    }
   }
 
   // method to create a car
-  createCar(): void {
-    inquirer
-      .prompt([
-        {
-          type: 'input',
-          name: 'color',
-          message: 'Enter Color',
-        },
-        {
-          type: 'input',
-          name: 'make',
-          message: 'Enter Make',
-        },
-        {
-          type: 'input',
-          name: 'model',
-          message: 'Enter Model',
-        },
-        {
-          type: 'input',
-          name: 'year',
-          message: 'Enter Year',
-        },
-        {
-          type: 'input',
-          name: 'weight',
-          message: 'Enter Weight',
-        },
-        {
-          type: 'input',
-          name: 'topSpeed',
-          message: 'Enter Top Speed',
-        },
-      ])
-      .then((answers) => {
-        const car = new Car(
-          // TODO: The generateVin method is static and should be called using the class name Cli, make sure to use Cli.generateVin() for creating a truck and motorbike as well!
-          Cli.generateVin(),
-          answers.color,
-          answers.make,
-          answers.model,
-          parseInt(answers.year),
-          parseInt(answers.weight),
-          parseInt(answers.topSpeed),
-          []
-        );
-        // push the car to the vehicles array
-        this.vehicles.push(car);
-        // set the selectedVehicleVin to the vin of the car
-        this.selectedVehicleVin = car.vin;
-        // perform actions on the car
-        this.performActions();
-      });
+  async createCar(): Promise<void> {
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'color',
+        message: 'Enter Color',
+      },
+      {
+        type: 'input',
+        name: 'make',
+        message: 'Enter Make',
+      },
+      {
+        type: 'input',
+        name: 'model',
+        message: 'Enter Model',
+      },
+      {
+        type: 'input',
+        name: 'year',
+        message: 'Enter Year',
+      },
+      {
+        type: 'input',
+        name: 'weight',
+        message: 'Enter Weight',
+      },
+      {
+        type: 'input',
+        name: 'topSpeed',
+        message: 'Enter Top Speed',
+      },
+    ]);
+
+    const car = new Car(
+      Cli.generateVin(),
+      answers.color,
+      answers.make,
+      answers.model,
+      parseInt(answers.year),
+      parseInt(answers.weight),
+      parseInt(answers.topSpeed),
+      []
+    );
+    
+    this.vehicles.push(car);
+    this.selectedVehicleVin = car.vin;
+    console.log("Car created successfully!");
   }
 
   // Implement createTruck method
@@ -195,6 +206,7 @@ class Cli {
     );
 
     this.vehicles.push(truck);
+    this.selectedVehicleVin = truck.vin;
     console.log("Truck created successfully!");
   }
 
@@ -266,6 +278,7 @@ class Cli {
     );
 
     this.vehicles.push(motorbike);
+    this.selectedVehicleVin = motorbike.vin;
     console.log("Motorbike created successfully!");
   }
 
@@ -290,7 +303,7 @@ class Cli {
   }
 
   // method to perform actions on a vehicle
-  performActions(): void {
+  async performActions(): Promise<void> {
     const selectedVehicle = this.vehicles.find(v => v.vin === this.selectedVehicleVin);
     if (!selectedVehicle) {
       console.log('No vehicle selected');
@@ -298,87 +311,98 @@ class Cli {
       return;
     }
 
-    inquirer
-      .prompt([
-        {
-          type: 'list',
-          name: 'action',
-          message: 'Select an action',
-          choices: [
-            'Print details',
-            'Start vehicle',
-            'Accelerate 5 MPH',
-            'Decelerate 5 MPH',
-            'Stop vehicle',
-            'Turn right',
-            'Turn left',
-            'Reverse',
-            ...(selectedVehicle instanceof Truck ? ['Engage 4x4', 'Tow vehicle'] : []),
-            ...(selectedVehicle instanceof Motorbike ? ['Do wheelie', 'Toggle sidecar'] : []),
-            'Select or create another vehicle',
-            'Exit',
-          ],
-        },
-      ])
-      .then((answers) => {
-        switch (answers.action) {
-          case 'Print details':
-            selectedVehicle.printDetails();
-            break;
-          case 'Start vehicle':
-            selectedVehicle.start();
-            break;
-          case 'Accelerate 5 MPH':
-            selectedVehicle.accelerate(5);
-            break;
-          case 'Decelerate 5 MPH':
-            selectedVehicle.decelerate(5);
-            break;
-          case 'Stop vehicle':
-            selectedVehicle.stop();
-            break;
-          case 'Turn right':
-            selectedVehicle.turn('right');
-            break;
-          case 'Turn left':
-            selectedVehicle.turn('left');
-            break;
-          case 'Reverse':
-            selectedVehicle.reverse();
-            break;
-          case 'Engage 4x4':
-            if (selectedVehicle instanceof Truck) {
-              selectedVehicle.engage4x4();
-            }
-            break;
-          case 'Tow vehicle':
-            if (selectedVehicle instanceof Truck) {
-              this.findVehicleToTow(selectedVehicle);
-              return;
-            }
-            break;
-          case 'Do wheelie':
-            if (selectedVehicle instanceof Motorbike) {
-              selectedVehicle.doWheelie();
-            }
-            break;
-          case 'Toggle sidecar':
-            if (selectedVehicle instanceof Motorbike) {
-              selectedVehicle.toggleSidecar();
-            }
-            break;
-          case 'Select or create another vehicle':
-            this.startCli();
-            return;
-          case 'Exit':
-            this.exit = true;
-            return;
-        }
+    const { action } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'Select an action',
+        choices: [
+          'Print details',
+          'Start vehicle',
+          'Accelerate 5 MPH',
+          'Decelerate 5 MPH',
+          'Stop vehicle',
+          'Turn right',
+          'Turn left',
+          'Reverse',
+          ...(selectedVehicle instanceof Truck ? ['Engage 4x4', 'Tow vehicle'] : []),
+          ...(selectedVehicle instanceof Motorbike ? ['Do wheelie', 'Toggle sidecar'] : []),
+          'Select or create another vehicle',
+          'Exit',
+        ],
+      },
+    ]);
 
-        if (!this.exit) {
-          this.performActions();
+    switch (action) {
+      case 'Print details':
+        selectedVehicle.printDetails();
+        break;
+      case 'Start vehicle':
+        selectedVehicle.start();
+        break;
+      case 'Accelerate 5 MPH':
+        selectedVehicle.accelerate(5);
+        break;
+      case 'Decelerate 5 MPH':
+        selectedVehicle.decelerate(5);
+        break;
+      case 'Stop vehicle':
+        selectedVehicle.stop();
+        break;
+      case 'Turn right':
+        selectedVehicle.turn('right');
+        break;
+      case 'Turn left':
+        selectedVehicle.turn('left');
+        break;
+      case 'Reverse':
+        selectedVehicle.reverse();
+        break;
+      case 'Engage 4x4':
+        if (selectedVehicle instanceof Truck) {
+          selectedVehicle.engage4x4();
         }
-      });
+        break;
+      case 'Tow vehicle':
+        if (selectedVehicle instanceof Truck) {
+          await this.findVehicleToTow(selectedVehicle);
+          return;
+        }
+        break;
+      case 'Do wheelie':
+        if (selectedVehicle instanceof Motorbike) {
+          selectedVehicle.doWheelie();
+        }
+        break;
+      case 'Toggle sidecar':
+        if (selectedVehicle instanceof Motorbike) {
+          selectedVehicle.toggleSidecar();
+        }
+        break;
+      case 'Select or create another vehicle':
+        this.startCli();
+        return;
+      case 'Exit':
+        this.exit = true;
+        return;
+    }
+
+    if (!this.exit) {
+      const { returnToMain } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "returnToMain",
+          message: "Would you like to return to the main menu?",
+          default: false,
+        },
+      ]);
+
+      if (returnToMain) {
+        this.startCli();
+      } else {
+        this.performActions();
+      }
+    }
   }
 
   // method to start the cli
