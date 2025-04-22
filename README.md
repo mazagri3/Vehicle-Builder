@@ -6,9 +6,7 @@ Your task is to update an existing TypeScript command-line application that buil
 
 ## Walkthrough Video
 
-[Click here to view the walkthrough video]
-
-
+[Click here to view the walkthrough video](YOUR_VIDEO_LINK_HERE)
 
 The video demonstrates:
 - Creating a new truck with towing capacity and 4x4 features
@@ -139,14 +137,3 @@ You are required to submit the following for review:
 
 ---
 &copy; 2024 edX Boot Camps LLC. Confidential and Proprietary. All Rights Reserved.
-
-Truck created successfully!
-
-? What would you like to do with your vehicle?
-❯ Start the vehicle
-  Accelerate
-  Turn
-  Use towing feature
-  Stop the vehicle
-  Print vehicle details
-  Return to main menu
